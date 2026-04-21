@@ -137,16 +137,16 @@ File: `lib/calculateFK.py`
 
 Technical details:
 
-- Each link transform is constructed as a standard DH matrix
+- Each link transform is constructed as a standard DH matrix:
 
-	```math
-	A_i = \begin{bmatrix}
-	c_{\theta_i} & -s_{\theta_i}c_{\alpha_i} & s_{\theta_i}s_{\alpha_i} & a_i c_{\theta_i} \\
-	s_{\theta_i} & c_{\theta_i}c_{\alpha_i} & -c_{\theta_i}s_{\alpha_i} & a_i s_{\theta_i} \\
-	0 & s_{\alpha_i} & c_{\alpha_i} & d_i \\
-	0 & 0 & 0 & 1
-	\end{bmatrix}
-	```
+```math
+A_i = \begin{bmatrix}
+c_{\theta_i} & -s_{\theta_i}c_{\alpha_i} & s_{\theta_i}s_{\alpha_i} & a_i c_{\theta_i} \\
+s_{\theta_i} & c_{\theta_i}c_{\alpha_i} & -c_{\theta_i}s_{\alpha_i} & a_i s_{\theta_i} \\
+0 & s_{\alpha_i} & c_{\alpha_i} & d_i \\
+0 & 0 & 0 & 1
+\end{bmatrix}
+```
 
 - The full end-effector pose is the chained product $T_{0e} = A_1 A_2 \cdots A_7$.
 - The implementation applies per-joint geometric offsets (`offset_joint_positions`) after each cumulative transform so reported joint centers match the physical robot geometry.
