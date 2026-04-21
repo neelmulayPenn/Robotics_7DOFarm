@@ -182,16 +182,16 @@ Technical details:
 
 - The Jacobian is built column-wise from current frame axes and origins:
 
-	$$
-	J_v^{(i)} = z_{i-1} \times (o_n - p_{i-1}), \quad J_\omega^{(i)} = z_{i-1}
-	$$
+$$
+J_v^{(i)} = z_{i-1} \times (o_n - p_{i-1}), \quad J_\omega^{(i)} = z_{i-1}
+$$
 
 - `z_prev` and `p_prev` are updated through the same forward chain used for FK, keeping the Jacobian exactly consistent with your kinematic model.
 - Output twist relation is
 
-	$$
-	\begin{bmatrix} v \\ \omega \end{bmatrix} = J(q)\dot{q}
-	$$
+$$
+\begin{bmatrix} v \\ \omega \end{bmatrix} = J(q)\dot{q}
+$$
 
 #### Jacobian Snippet
 
@@ -228,9 +228,9 @@ Technical details:
 - If any task component is unconstrained, that row is removed from both $J$ and $v_{task}$.
 - The solver computes the minimum-residual least-squares solution:
 
-	$$
-	\dot{q} = \arg\min_{\dot{q}} \lVert J_r \dot{q} - v_r \rVert_2^2
-	$$
+$$
+\dot{q} = \arg\min_{\dot{q}} \lVert J_r \dot{q} - v_r \rVert_2^2
+$$
 
 - Implemented with `np.linalg.lstsq`, which is numerically stable near singular configurations compared to directly inverting normal equations.
 
@@ -255,15 +255,15 @@ Technical details:
 - Primary task is solved with pseudo-inverse.
 - Secondary objective is projected with
 
-	$$
-	N = I - J^+J
-	$$
+$$
+N = I - J^+J
+$$
 
 - Final command:
 
-	$$
-	\dot{q} = J^+ v_r + N b
-	$$
+$$
+\dot{q} = J^+ v_r + N b
+$$
 
 - This preserves the primary end-effector velocity while using residual DoF for posture shaping (e.g., joint-limit avoidance).
 
@@ -289,32 +289,32 @@ File: `lib/IK_position_null.py`
 Technical details:
 
 - Pose error is formed from translation and orientation:
-	- translation term from end-effector origin difference
-	- orientation term from relative rotation skew-axis (axis-angle proxy)
+  - Translation term from end-effector origin difference.
+  - Orientation term from relative rotation skew-axis (axis-angle proxy).
 - Primary update is either
 
-	$$
-	\Delta q_{ik} = -J^+ e \quad \text{or} \quad \Delta q_{ik} = -J^T e
-	$$
+$$
+\Delta q_{ik} = -J^+ e \quad \text{or} \quad \Delta q_{ik} = -J^T e
+$$
 
 - Secondary centering objective uses normalized joint offsets inside limits:
 
-	$$
-	\Delta q_{center} = -k\,\frac{2(q-q_{mid})}{q_{max}-q_{min}}
-	$$
+$$
+\Delta q_{center} = -k\,\frac{2(q-q_{mid})}{q_{max}-q_{min}}
+$$
 
 - Null-space blending:
 
-	$$
-	\Delta q = \Delta q_{ik} + (I - J^+J)\Delta q_{center}
-	$$
+$$
+\Delta q = \Delta q_{ik} + (I - J^+J)\Delta q_{center}
+$$
 
 - Iteration rule: $q_{k+1} = q_k + \alpha\Delta q$.
 - Termination and validation are explicit in code:
-	- max iteration cap
-	- minimum step-size convergence check
-	- final pose tolerance check (linear + angular)
-	- hard joint-limit feasibility check
+  - Max iteration cap.
+  - Minimum step-size convergence check.
+  - Final pose tolerance check (linear + angular).
+  - Hard joint-limit feasibility check.
 
 #### Position IK Snippet
 
@@ -345,21 +345,21 @@ Technical details:
 - Repulsive force is active only within a finite influence radius around obstacles.
 - Per-joint force accumulation:
 
-	$$
-	F_i = F_{att,i} + \sum_j F_{rep,i}^{(j)}
-	$$
+$$
+F_i = F_{att,i} + \sum_j F_{rep,i}^{(j)}
+$$
 
 - Force-to-torque mapping uses per-point Jacobians from `calculateFKJac.py`:
 
-	$$
-		au = \sum_i J_{v,i}^T F_i
-	$$
+$$
+tau = \sum_i J_{v,i}^T F_i
+$$
 
 - Direction update is normalized and biased by a goal-seeking joint-space term:
 
-	$$
-	\Delta q \propto \tau - 5(q-q_{goal})
-	$$
+$$
+\Delta q \propto \tau - 5(q-q_{goal})
+$$
 
 - The planner performs interpolation-based collision checks between successive joint configurations and triggers random-walk perturbations if stuck in local minima or collision.
 
@@ -388,21 +388,21 @@ Technical details:
 
 - State space is full 7-DoF joint space with hard limits.
 - Sampling policy mixes global exploration with exploitation:
-	- 85% uniform random samples
-	- 15% direct bias to opposite root (goal/start depending on active tree)
+  - 85% uniform random samples.
+  - 15% direct bias to opposite root (goal/start depending on active tree).
 - Steering step:
 
-	$$
-	q_{new} = q_{near} + \eta\,\frac{q_{rand}-q_{near}}{\lVert q_{rand}-q_{near}\rVert}
-	$$
+$$
+q_{new} = q_{near} + \eta\,\frac{q_{rand}-q_{near}}{\lVert q_{rand}-q_{near}\rVert}
+$$
 
-	where `eta = 0.9` in your implementation.
+where `eta = 0.9` in your implementation.
 
 - Edge validity is checked with interpolated collision tests before node insertion.
 - Once a new node can connect collision-free to the opposite tree, parent pointers are backtracked and concatenated into a start-to-goal path.
 - Time/performance behavior:
-	- strong at escaping local minima where potential fields can stall
-	- path quality is feasible-first (not optimal), with no post-smoothing stage yet
+  - Strong at escaping local minima where potential fields can stall.
+  - Path quality is feasible-first (not optimal), with no post-smoothing stage yet.
 
 #### RRT Snippet
 
