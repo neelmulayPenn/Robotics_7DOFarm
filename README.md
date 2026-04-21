@@ -139,14 +139,14 @@ Technical details:
 
 - Each link transform is constructed as a standard DH matrix
 
-	$$
+	```math
 	A_i = \begin{bmatrix}
 	c_{\theta_i} & -s_{\theta_i}c_{\alpha_i} & s_{\theta_i}s_{\alpha_i} & a_i c_{\theta_i} \\
 	s_{\theta_i} & c_{\theta_i}c_{\alpha_i} & -c_{\theta_i}s_{\alpha_i} & a_i s_{\theta_i} \\
 	0 & s_{\alpha_i} & c_{\alpha_i} & d_i \\
 	0 & 0 & 0 & 1
 	\end{bmatrix}
-	$$
+	```
 
 - The full end-effector pose is the chained product $T_{0e} = A_1 A_2 \cdots A_7$.
 - The implementation applies per-joint geometric offsets (`offset_joint_positions`) after each cumulative transform so reported joint centers match the physical robot geometry.
@@ -182,16 +182,16 @@ Technical details:
 
 - The Jacobian is built column-wise from current frame axes and origins:
 
-$$
+```math
 J_v^{(i)} = z_{i-1} \times (o_n - p_{i-1}), \quad J_\omega^{(i)} = z_{i-1}
-$$
+```
 
 - `z_prev` and `p_prev` are updated through the same forward chain used for FK, keeping the Jacobian exactly consistent with your kinematic model.
 - Output twist relation is
 
-$$
+```math
 \begin{bmatrix} v \\ \omega \end{bmatrix} = J(q)\dot{q}
-$$
+```
 
 #### Jacobian Snippet
 
@@ -228,9 +228,9 @@ Technical details:
 - If any task component is unconstrained, that row is removed from both $J$ and $v_{task}$.
 - The solver computes the minimum-residual least-squares solution:
 
-$$
+```math
 \dot{q} = \arg\min_{\dot{q}} \lVert J_r \dot{q} - v_r \rVert_2^2
-$$
+```
 
 - Implemented with `np.linalg.lstsq`, which is numerically stable near singular configurations compared to directly inverting normal equations.
 
@@ -255,15 +255,15 @@ Technical details:
 - Primary task is solved with pseudo-inverse.
 - Secondary objective is projected with
 
-$$
+```math
 N = I - J^+J
-$$
+```
 
 - Final command:
 
-$$
+```math
 \dot{q} = J^+ v_r + N b
-$$
+```
 
 - This preserves the primary end-effector velocity while using residual DoF for posture shaping (e.g., joint-limit avoidance).
 
@@ -293,21 +293,21 @@ Technical details:
   - Orientation term from relative rotation skew-axis (axis-angle proxy).
 - Primary update is either
 
-$$
+```math
 \Delta q_{ik} = -J^+ e \quad \text{or} \quad \Delta q_{ik} = -J^T e
-$$
+```
 
 - Secondary centering objective uses normalized joint offsets inside limits:
 
-$$
+```math
 \Delta q_{center} = -k\,\frac{2(q-q_{mid})}{q_{max}-q_{min}}
-$$
+```
 
 - Null-space blending:
 
-$$
+```math
 \Delta q = \Delta q_{ik} + (I - J^+J)\Delta q_{center}
-$$
+```
 
 - Iteration rule: $q_{k+1} = q_k + \alpha\Delta q$.
 - Termination and validation are explicit in code:
@@ -345,21 +345,21 @@ Technical details:
 - Repulsive force is active only within a finite influence radius around obstacles.
 - Per-joint force accumulation:
 
-$$
+```math
 F_i = F_{att,i} + \sum_j F_{rep,i}^{(j)}
-$$
+```
 
 - Force-to-torque mapping uses per-point Jacobians from `calculateFKJac.py`:
 
-$$
+```math
 tau = \sum_i J_{v,i}^T F_i
-$$
+```
 
 - Direction update is normalized and biased by a goal-seeking joint-space term:
 
-$$
+```math
 \Delta q \propto \tau - 5(q-q_{goal})
-$$
+```
 
 - The planner performs interpolation-based collision checks between successive joint configurations and triggers random-walk perturbations if stuck in local minima or collision.
 
@@ -392,9 +392,9 @@ Technical details:
   - 15% direct bias to opposite root (goal/start depending on active tree).
 - Steering step:
 
-$$
+```math
 q_{new} = q_{near} + \eta\,\frac{q_{rand}-q_{near}}{\lVert q_{rand}-q_{near}\rVert}
-$$
+```
 
 where `eta = 0.9` in your implementation.
 
