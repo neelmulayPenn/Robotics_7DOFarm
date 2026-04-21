@@ -12,7 +12,7 @@ This repository contains a complete kinematics and planning stack for a 7-DOF Fr
 
 The core implementation is in `lib/`.
 
-[![Pick and Place Competition]https://youtu.be/bMnCxwn1p1U](https://youtu.be/bMnCxwn1p1U)
+[![Pick and Place Competition](https://youtu.be/bMnCxwn1p1U)](https://youtu.be/bMnCxwn1p1U)
 
 ## Project Highlights
 
